@@ -1,0 +1,71 @@
+
+#property strict
+
+string BotName = "Demo Bot";
+double LotSize = 2.0;
+double StopLoss = -321.00;
+double TakeProfit = 1322;
+int MagicNumber = 1832;
+int MaxNumber = 1;
+int Sma = 250;
+int Fma = 145;
+bool LongSetup = false;
+
+int OnInit()
+  {
+   return(INIT_SUCCEEDED);
+  }
+
+void OnDeinit(const int reason)
+  {
+   
+  }
+
+void OnTick()
+  {
+      double SlowMovingAverage = iMA(NULL, 0, Sma, 0, MODE_SMA, PRICE_CLOSE, 0 );
+      double SlowMovingAverageFive = iMA(NULL, 0, Sma, 0, MODE_SMA, PRICE_CLOSE, 5 );
+      double SlowMovingAverageTen = iMA(NULL, 0, Sma, 0, MODE_SMA, PRICE_CLOSE, 10 );
+      double SlowMovingAverageThirty = iMA(NULL, 0, Sma, 0, MODE_SMA, PRICE_CLOSE, 30 );
+
+      double FastMovingAverage =  iMA(NULL, 0, Fma, 0, MODE_SMA, PRICE_CLOSE, 0 );
+      double FastMovingAverageFive =  iMA(NULL, 0, Fma, 0, MODE_SMA, PRICE_CLOSE, 5);
+      double FastMovingAverageTen =  iMA(NULL, 0, Fma, 0, MODE_SMA, PRICE_CLOSE, 10 );
+      double FastMovingAverageThirty =  iMA(NULL, 0, Fma, 0, MODE_SMA, PRICE_CLOSE, 30 );
+  
+  if(GetTotalOpenTrades() < MaxNumber){
+
+    if( (FastMovingAverageFive < SlowMovingAverageFive) && (FastMovingAverageTen < SlowMovingAverageTen) && (FastMovingAverageThirty < SlowMovingAverageThirty)){
+
+       if(FastMovingAverage > SlowMovingAverage){
+            LongSetup = true;
+         };
+    }
+    
+    if(LongSetup){
+      int OrderResult = OrderSend(Symbol(), OP_BUY, LotSize, Ask, 10, 0, 0, "Buy Order", MagicNumber, 0, clrBlue);
+    
+    }
+   };
+  };
+  
+ 
+   
+   //Return total number of open trades
+   int GetTotalOpenTrades(){
+      int TotalTrades = 0;
+      
+      //Loop through open trades and add them to total trades
+      for(int i = 0; i<OrdersTotal(); i++){
+         
+         if(OrderSelect(i, SELECT_BY_POS, MODE_TRADES)){
+            if(OrderSymbol() != Symbol()) continue;
+            if(OrderMagicNumber() != MagicNumber) continue;
+            if(OrderCloseTime() != 0) continue;
+            
+            TotalTrades++;
+         };
+      };
+      return TotalTrades;
+   };
+   
